@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics | AgriChain</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <nav class="glass-nav">
+        <div class="logo">AgriChain</div>
+        <div class="nav-links">
+            <a href="index.html">Marketplace</a>
+            <a href="farmer.html">Farmer</a>
+            <a href="logistics.html" class="active">Logistics</a>
+            <a href="shop.html">Shop</a>
+            <a href="verify.html">Verify</a>
+        </div>
+        <div class="wallet-connect">
+            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="section-title">🚚 Logistics Dashboard</h1>
+        
+        <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+            <h3>3. Update Journey</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Record product movement on the blockchain.</p>
+            
+             <div class="input-group">
+                <label>Product ID</label>
+                <input type="number" id="updateId" placeholder="ID from QR Code">
+            </div>
+            <div class="input-group">
+                <label>Action</label>
+                <select id="updateStage">
+                    <option value="1">Picked Up (In Transit)</option>
+                    <option value="2">Stored (Warehouse)</option>
+                    <option value="3">Delivered to Shop (At Retail)</option>
+                    <option value="4">Sold to Consumer</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Current Location</label>
+                <input type="text" id="updateLoc" placeholder="e.g. Distribution Center A">
+            </div>
+            <button id="updateBtn" class="btn-secondary" style="width: 100%">Update Status</button>
+        </div>
+    </main>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/logistics.js"></script>
+</body>
+</html>

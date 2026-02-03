@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace | AgriChain</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <nav class="glass-nav">
+        <div class="logo">AgriChain</div>
+        <div class="nav-links">
+            <a href="index.html" class="active">Marketplace</a>
+            <a href="farmer.html">Farmer</a>
+            <a href="logistics.html">Logistics</a>
+            <a href="shop.html">Shop</a>
+            <a href="verify.html">Verify</a>
+        </div>
+        <div class="wallet-connect">
+            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="hero">
+                <h1>AgriChain<br><span style="color:var(--primary-color); font-size: 0.6em; display:block; margin-top: 0.2em;">Trust from Soil to Shelf</span></h1>
+                <p>Track, Trade, and Verify agricultural assets on the Ethereum Blockchain. Transparency from farm to table.</p>
+                <div style="margin-top: 2rem;">
+                     <!-- Quick Actions inline -->
+                     <div class="glass-card" style="max-width: 500px; margin: 2rem auto;">
+                        <h3>💰 Quick List</h3>
+                        <div style="display:flex; gap: 10px;">
+                             <input type="number" id="sellId" placeholder="ID" style="width: 80px">
+                             <input type="number" id="sellPrice" placeholder="ETH" style="width: 80px">
+                             <button id="listBtn" class="btn-secondary">List</button>
+                        </div>
+                     </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Live Marketplace</h2>
+            <div id="marketGrid" class="marketplace-grid">
+                <div class="glass-card product-card">
+                    <p style="color: var(--text-muted);">Loading products...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/market.js"></script>
+</body>
+</html>

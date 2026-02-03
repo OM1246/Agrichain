@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify | AgriChain</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <nav class="glass-nav">
+        <div class="logo">AgriChain</div>
+        <div class="nav-links">
+            <a href="index.html">Marketplace</a>
+            <a href="farmer.html">Farmer</a>
+            <a href="logistics.html">Logistics</a>
+            <a href="shop.html">Shop</a>
+            <a href="verify.html" class="active">Verify</a>
+        </div>
+        <div class="wallet-connect">
+            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="section-title">🔍 Verify Authenticity</h1>
+        
+        <div class="glass-card" style="max-width: 600px; margin: 0 auto; text-align:center;">
+            <p style="margin-bottom: 2rem;">Scan the QR Code or enter the ID below to see the full story.</p>
+            <div class="input-group">
+                <input type="number" id="verifyInput" placeholder="Enter Product ID (e.g. 1)">
+            </div>
+            <button id="verifyBtn" class="btn-primary" style="width: 100%">Check Trust Score 🌟</button>
+        </div>
+
+        <div id="verifyResult" class="glass-card hidden" style="margin-top: 2rem;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 id="vName" style="font-size: 2.2rem; color: var(--primary-color); margin-bottom: 0.5rem">Product Name</h3>
+                    <p id="vHarvest" style="color: var(--secondary-color); font-weight: bold;">Harvested: DATE</p>
+                </div>
+                <div style="text-align: right;">
+                    <div id="vScoreBox" style="background: var(--glass-bg); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--primary-color);">
+                        <span style="display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Trust Score</span>
+                        <span id="vScore" style="font-size: 2rem; font-weight: 800; color: var(--primary-color);">95/100</span>
+                    </div>
+                </div>
+            </div>
+
+            <p id="vDesc" style="font-size: 1.2rem; margin-bottom: 2rem;">Description...</p>
+            
+            <!-- Details Grid -->
+            <div class="marketplace-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                <div>
+                    <label style="color: var(--text-muted)">Origin</label>
+                    <p id="vOrigin" style="font-size: 1.1rem;">Location</p>
+                </div>
+                <div>
+                    <label style="color: var(--text-muted)">Current Owner</label>
+                    <p id="vOwner" class="product-owner">0x000...</p>
+                </div>
+                 <div>
+                    <label style="color: var(--text-muted)">Status</label>
+                    <span id="vStatus" class="product-badge" style="position:static; margin-top:5px; display:inline-block;">STATUS</span>
+                </div>
+            </div>
+
+            <h4>Supply Chain Journey 🛤️</h4>
+            <ul class="timeline" id="vTimeline">
+                <!-- Events -->
+            </ul>
+        </div>
+    </main>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/verify.js"></script>
+</body>
+</html>

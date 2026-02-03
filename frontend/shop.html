@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | AgriChain</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <nav class="glass-nav">
+        <div class="logo">AgriChain</div>
+        <div class="nav-links">
+            <a href="index.html">Marketplace</a>
+            <a href="farmer.html">Farmer</a>
+            <a href="logistics.html">Logistics</a>
+            <a href="shop.html" class="active">Shop</a>
+            <a href="verify.html">Verify</a>
+        </div>
+        <div class="wallet-connect">
+            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="section-title">🏪 Shop Dashboard</h1>
+        
+        <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+            <h3>4. Confirm Receipt</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Permanently record that you have received the goods.</p>
+            
+            <div class="input-group">
+                 <label>Product ID</label>
+                <input type="number" id="shopId" placeholder="Product ID">
+            </div>
+            <div class="input-group">
+                 <label>Shop Location</label>
+                <input type="text" id="shopLoc" placeholder="e.g. Whole Foods, NY">
+            </div>
+
+            <button id="confirmBtn" class="btn-primary" style="width: 100%">Confirm Receipt & Stock</button>
+        </div>
+    </main>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    
+    <script type="module">
+        window.addEventListener('app:ready', () => {
+            const btn = document.getElementById("confirmBtn");
+            btn.addEventListener("click", async () => {
+                if(!window.App.contract) return alert("Connect Wallet!");
+                const id = document.getElementById("shopId").value;
+                const loc = document.getElementById("shopLoc").value;
+                // Stage 3 = At Retail
+                try {
+                    const tx = await window.App.contract.updateStage(id, 3, loc);
+                    await tx.wait();
+                    alert("✅ Receipt Confirmed! Goods are now 'At Retail'.");
+                } catch(e) {
+                    console.error(e);
+                    alert("Error: " + (e.reason||e.message));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

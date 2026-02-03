@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard | AgriChain</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <nav class="glass-nav">
+        <div class="logo">AgriChain</div>
+        <div class="nav-links">
+            <a href="index.html">Marketplace</a>
+            <a href="farmer.html" class="active">Farmer</a>
+            <a href="logistics.html">Logistics</a>
+            <a href="shop.html">Shop</a>
+            <a href="verify.html">Verify</a>
+        </div>
+        <div class="wallet-connect">
+            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="section-title">👨🌾 Farmer Dashboard</h1>
+        
+        <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
+            <h3>🌱 1. Digital Harvest Registration</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Create a permanent blockchain identity for your produce.</p>
+            
+            <form id="registerForm">
+                <div class="input-group">
+                    <label>Product Name</label>
+                    <input type="text" id="pName" placeholder="e.g. Organic Braeburn Apples" required>
+                </div>
+                <div class="input-group">
+                    <label>Farm Location</label>
+                    <input type="text" id="pOrigin" placeholder="e.g. Green Valley Farms, WA" required>
+                </div>
+                <div class="input-group">
+                    <label>Harvest Date</label>
+                    <input type="date" id="pHarvestDate" required style="color-scheme: dark;">
+                </div>
+                <div class="input-group">
+                    <label>Batch / Description</label>
+                    <input type="text" id="pDesc" placeholder="e.g. Lot #902 - Premium Grade">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%">Mint Asset & Generate ID</button>
+            </form>
+
+            <div id="qrResult" class="glass-card hidden" style="margin-top: 2rem; text-align: center; border: 1px solid var(--primary-color);">
+                <h3 style="color: var(--primary-color)">✅ Asset Created!</h3>
+                <p style="margin-bottom: 1rem">Scan this to tell the story.</p>
+                <div id="qrcode" style="display: inline-block; padding: 15px; background: white; border-radius: 8px;"></div>
+                <p id="productIdDisplay" style="margin-top: 1rem; font-weight: bold; font-size: 1.2rem;"></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- LOAD LIBRARIES WITH SCRIPT TAGS TO AVOID ESM ISSUES -->
+    <script src="js/ethers.umd.min.js"></script>
+    <script src="js/qrcode.min.js"></script>
+    <!-- GLOBAL LOGIC -->
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/farmer.js"></script>
+</body>
+</html>
