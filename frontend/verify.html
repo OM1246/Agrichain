@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify | AgriChain</title>
     <link rel="stylesheet" href="css/style.css">
@@ -13,13 +14,16 @@
         <div class="logo">AgriChain</div>
         <div class="nav-links">
             <a href="index.html">Marketplace</a>
-            <a href="farmer.html">Farmer</a>
-            <a href="logistics.html">Logistics</a>
-            <a href="shop.html">Shop</a>
+            <a href="farmer-auth.html">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
             <a href="verify.html" class="active">Verify</a>
+            <a href="shop.html">Shop</a>
         </div>
         <div class="wallet-connect">
-            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+            <div style="display:flex; gap:10px;">
+            <a href="seller-auth.html" class="btn-primary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-2); color:#fff;">👤 Seller Login</a>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
         </div>
     </nav>
 

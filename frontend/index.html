@@ -2,60 +2,281 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketplace | AgriChain</title>
+    <title>AgriChain — Blockchain Supply Chain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            position: relative;
+        }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--emerald);
+            background: var(--emerald-dim);
+            border: 1px solid rgba(0,229,160,0.25);
+            padding: 6px 16px; border-radius: 999px;
+            margin-bottom: 1.75rem;
+        }
+        .hero-eyebrow::before { content:'●'; font-size:0.5rem; animation: pulse 2s infinite; }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1.05;
+            max-width: 750px;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+        .hero p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 520px;
+            line-height: 1.75;
+            margin-bottom: 2.5rem;
+        }
+        .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+        /* Stats strip */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            margin: 4rem 0;
+        }
+        .stats-item {
+            background: var(--surface);
+            padding: 1.75rem 2rem;
+            text-align: center;
+        }
+        .stats-item .num {
+            font-size: 2rem; font-weight: 900;
+            letter-spacing: -0.04em;
+            margin-bottom: 4px;
+        }
+        .stats-item .lbl { font-size: 0.8rem; color: var(--gray); font-weight: 500; }
+
+        /* Portal section */
+        .portal-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+        /* How it works */
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .step-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            padding: 2rem 1.5rem;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .step-card:hover { border-color: var(--border-2); transform: translateY(-3px); }
+        .step-num {
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .step-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+        .step-card h4 { font-weight: 700; color: #fff; margin-bottom: 0.4rem; font-size: 0.98rem; }
+        .step-card p  { color: var(--gray); font-size: 0.84rem; line-height: 1.6; }
+
+        /* Footer */
+        footer {
+            padding: 2rem 2.5rem;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--gray-dim);
+            font-size: 0.78rem;
+            flex-wrap: wrap; gap: 1rem;
+        }
+        .net-badge {
+            display: flex; align-items: center; gap: 7px;
+            color: var(--gray);
+        }
+        .net-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 8px var(--emerald);
+            animation: pulse 2.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .stats-strip { grid-template-columns: 1fr 1fr; }
+            .portal-row  { grid-template-columns: 1fr; }
+            .steps-grid  { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    
+
+    <!-- NAVBAR -->
     <nav class="glass-nav">
-        <div class="logo">AgriChain</div>
+        <div class="logo">Agri<span>Chain</span></div>
         <div class="nav-links">
-            <a href="index.html" class="active">Marketplace</a>
-            <a href="farmer.html">Farmer</a>
-            <a href="logistics.html">Logistics</a>
-            <a href="shop.html">Shop</a>
-            <a href="verify.html">Verify</a>
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="farmer-auth.html">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html">Admin</a>
         </div>
-        <div class="wallet-connect">
-            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        <div style="display:flex; gap:10px;">
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <main class="container">
-        
-        <!-- Hero Section -->
-        <section id="hero">
-            <div class="hero">
-                <h1>AgriChain<br><span style="color:var(--primary-color); font-size: 0.6em; display:block; margin-top: 0.2em;">Trust from Soil to Shelf</span></h1>
-                <p>Track, Trade, and Verify agricultural assets on the Ethereum Blockchain. Transparency from farm to table.</p>
-                <div style="margin-top: 2rem;">
-                     <!-- Quick Actions inline -->
-                     <div class="glass-card" style="max-width: 500px; margin: 2rem auto;">
-                        <h3>💰 Quick List</h3>
-                        <div style="display:flex; gap: 10px;">
-                             <input type="number" id="sellId" placeholder="ID" style="width: 80px">
-                             <input type="number" id="sellPrice" placeholder="ETH" style="width: 80px">
-                             <button id="listBtn" class="btn-secondary">List</button>
-                        </div>
-                     </div>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="animate-up">
+                <div class="hero-eyebrow">Live on Ethereum Testnet</div>
+                <h1>Agrichain<br><span class="gradient-text">Transparency</span><br>on the Blockchain</h1>
+                <p>Every harvest, shipment and sale recorded on an immutable ledger — traceable, tamper-proof, and verifiable by anyone.</p>
+                <div class="hero-cta">
+                    <a href="farmer.html" class="btn-primary">🌾 Farmer Portal</a>
+                    <a href="seller.html" class="btn-outline">🏪 Seller Portal</a>
                 </div>
             </div>
-            
-            <h2 class="section-title">Live Marketplace</h2>
-            <div id="marketGrid" class="marketplace-grid">
-                <div class="glass-card product-card">
-                    <p style="color: var(--text-muted);">Loading products...</p>
-                </div>
-            </div>
-        </section>
 
-    </main>
+            <!-- Stats -->
+            <div class="stats-strip animate-up" style="animation-delay:0.2s">
+                <div class="stats-item">
+                    <div class="num gradient-text">100%</div>
+                    <div class="lbl">On-chain records</div>
+                </div>
+                <div class="stats-item">
+                    <div class="num" style="color:var(--violet)">3</div>
+                    <div class="lbl">Integrated portals</div>
+                </div>
+                <div class="stats-item">
+                    <div class="num" style="color:var(--sapphire)">0</div>
+                    <div class="lbl">Middlemen</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTALS -->
+    <section style="padding: 2rem 0 5rem;">
+        <div class="container">
+            <div style="margin-bottom: 2.5rem;">
+                <h2 class="section-title" style="margin-bottom:0.5rem;">Choose Your Portal</h2>
+                <p style="color:var(--gray);">Each portal serves a unique role in the supply chain ecosystem.</p>
+            </div>
+
+            <div class="portal-row">
+                <!-- Farmer -->
+                <a href="farmer.html" class="glass-card portal-card card-cyan animate-up">
+                    <div class="badge" style="color:var(--emerald);background:var(--emerald-dim);border-color:rgba(0,229,160,0.25);">🌾 Producer</div>
+                    <h3>Farmer Portal</h3>
+                    <p>Register your harvest on the blockchain, generate tracking codes, and browse the marketplace.</p>
+                    <div class="card-arrow" style="color:var(--emerald);">Enter Portal <span>→</span></div>
+                </a>
+
+                <!-- Seller -->
+                <a href="seller.html" class="glass-card portal-card card-green animate-up">
+                    <div class="badge" style="color:var(--violet);background:var(--violet-dim);border-color:rgba(155,109,255,0.25);">🏪 Marketplace</div>
+                    <h3>Seller Portal</h3>
+                    <p>List products, set buy/rent prices in ₹, track revenue, and manage your marketplace activity.</p>
+                    <div class="card-arrow" style="color:var(--violet);">Enter Portal <span>→</span></div>
+                </a>
+
+                <!-- Admin -->
+                <a href="admin.html" class="glass-card portal-card card-violet animate-up">
+                    <div class="badge" style="color:var(--sapphire);background:var(--sapphire-dim);border-color:rgba(61,158,255,0.25);">🛡️ Operations</div>
+                    <h3>Admin Portal</h3>
+                    <p>Track logistics stages, update supply chain status, and audit product history on-chain.</p>
+                    <div class="card-arrow" style="color:var(--sapphire);">Enter Portal <span>→</span></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section style="padding: 4rem 0 6rem; border-top: 1px solid var(--border);">
+        <div class="container">
+            <div style="margin-bottom: 3rem;">
+                <h2 class="section-title" style="margin-bottom:0.5rem;">How It Works</h2>
+                <p style="color:var(--gray);">Two simple journeys — one for those who grow, one for those who sell.</p>
+            </div>
+
+            <!-- For Farmers -->
+            <div style="margin-bottom: 3rem;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
+                    <span style="color:var(--emerald);font-size:0.72rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">🌾 For Farmers</span>
+                    <div style="flex:1;height:1px;background:var(--border);"></div>
+                </div>
+                <div class="steps-grid">
+                    <div class="step-card animate-up" style="border-top:2px solid var(--emerald);">
+                        <div class="step-num" style="color:var(--emerald);">Step 01</div>
+                        <div class="step-icon">🌿</div>
+                        <h4>Register Produce</h4>
+                        <p>Mint an on-chain record for your harvest — name, origin, quantity, and harvest date.</p>
+                    </div>
+                    <div class="step-card animate-up" style="border-top:2px solid var(--emerald);">
+                        <div class="step-num" style="color:var(--emerald);">Step 02</div>
+                        <div class="step-icon">📦</div>
+                        <h4>Generate Code</h4>
+                        <p>Get a unique tracking code tied to your on-chain record — use it across the supply chain.</p>
+                    </div>
+                    <div class="step-card animate-up" style="border-top:2px solid var(--emerald);">
+                        <div class="step-num" style="color:var(--emerald);">Step 03</div>
+                        <div class="step-icon">🚜</div>
+                        <h4>Ship &amp; Track</h4>
+                        <p>Every stage update is recorded on the blockchain in real time — fully transparent.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Sellers -->
+            <div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
+                    <span style="color:var(--violet);font-size:0.72rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">🏪 For Sellers</span>
+                    <div style="flex:1;height:1px;background:var(--border);"></div>
+                </div>
+                <div class="steps-grid">
+                    <div class="step-card animate-up" style="border-top:2px solid var(--violet);">
+                        <div class="step-num" style="color:var(--violet);">Step 01</div>
+                        <div class="step-icon">🔎</div>
+                        <h4>Browse Products</h4>
+                        <p>Explore verified, farmer-registered produce available on the blockchain marketplace.</p>
+                    </div>
+                    <div class="step-card animate-up" style="border-top:2px solid var(--violet);">
+                        <div class="step-num" style="color:var(--violet);">Step 02</div>
+                        <div class="step-icon">💰</div>
+                        <h4>List for Sale</h4>
+                        <p>Set buy or rent prices in ₹ and publish the product to the decentralized marketplace.</p>
+                    </div>
+                    <div class="step-card animate-up" style="border-top:2px solid var(--violet);">
+                        <div class="step-num" style="color:var(--violet);">Step 03</div>
+                        <div class="step-icon">✅</div>
+                        <h4>Complete Sale</h4>
+                        <p>Buyers purchase instantly — revenue tracked in your analytics dashboard in real time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 AgriChain Protocol — Built with Solidity &amp; Ethers.js</p>
+        <div class="net-badge">
+            <span class="net-dot"></span>
+            Ethereum Network Active
+        </div>
+    </footer>
 
     <script src="js/ethers.umd.min.js"></script>
     <script type="module" src="js/global.js"></script>
-    <script type="module" src="js/market.js"></script>
+
 </body>
 </html>

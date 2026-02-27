@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Login — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Auto-redirect if already logged in
+        if (localStorage.getItem('sellerToken')) {
+            window.location.href = 'seller.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer.html">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a href="seller-auth.html" class="btn-primary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-2); color:#fff;">👤 Seller Login</a>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card animate-up">
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
+                <div class="auth-tab" onclick="switchAuth('signup')">Sign Up</div>
+            </div>
+
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome to<br>Seller's Portal</h2>
+                <p>Login to manage your agricultural listings</p>
+                <div class="input-group full">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="name@company.com">
+                </div>
+                <div class="input-group full">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••">
+                </div>
+                <button onclick="handleAuth('login')" class="btn-primary btn-auth">🔓 Secure Login</button>
+            </div>
+
+            <div id="signupForm" class="auth-form hidden">
+                <h2>Create Account<br>For Seller's Portal</h2>
+                <p>Start your journey as an AgriChain seller</p>
+                <div class="input-group full">
+                    <label>Business Name</label>
+                    <input type="text" placeholder="e.g. Green Valley Farms">
+                </div>
+                <div class="input-group full">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="name@company.com">
+                </div>
+                <div class="input-group full">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••">
+                </div>
+                <button onclick="handleAuth('signup')" class="btn-primary btn-auth" style="background:var(--sapphire); border-color:var(--sapphire);">🚀 Create Account</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/auth';
+
+        function switchAuth(type) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const tabs = document.querySelectorAll('.auth-tab');
+
+            if (type === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        async function handleAuth(type) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Processing...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                let body = {};
+                if (type === 'signup') {
+                    body = {
+                        businessName: document.querySelector('#signupForm input[type="text"]').value,
+                        email: document.querySelector('#signupForm input[type="email"]').value,
+                        password: document.querySelector('#signupForm input[type="password"]').value
+                    };
+                } else {
+                    body = {
+                        email: document.querySelector('#loginForm input[type="email"]').value,
+                        password: document.querySelector('#loginForm input[type="password"]').value
+                    };
+                }
+
+                const res = await fetch(`${API_URL}/${type}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('sellerToken', data.token);
+                    localStorage.setItem('sellerData', JSON.stringify(data.seller));
+                    window.location.href = 'seller.html';
+                } else {
+                    alert(data.message || 'Authentication failed');
+                }
+            } catch (error) {
+                console.error('Auth Error:', error);
+                alert('Connection error. Is the backend running?');
+            } finally {
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'all';
+            }
+        }
+    </script>
+
+</body>
+</html>

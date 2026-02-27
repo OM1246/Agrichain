@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Portal — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Auth Gatekeeper: Immediate redirection if not logged in
+        if (!localStorage.getItem('sellerToken')) {
+            window.location.href = 'seller-auth.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html">Farmer</a>
+            <a href="seller-auth.html" class="active">Seller</a>
+            <a href="admin.html">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <div id="sellerIdentity" style="color:var(--gray); font-size:0.9rem; font-weight:600; display:none;">
+                <span style="color:var(--emerald-dim); margin-right:4px;">👤</span> <span id="sellerBusinessName">Seller</span>
+            </div>
+            <button onclick="handleLogout()" class="btn-primary" style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.2); color:#ff3b30; padding: 8px 16px;">🚪 Logout</button>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top:3rem;padding-bottom:5rem;">
+
+        <!-- Header -->
+        <div class="animate-up" style="margin-bottom:2.5rem;">
+            <div class="badge" style="color:var(--violet);background:var(--violet-dim);border-color:rgba(155,109,255,0.25);">🏪 Seller Portal</div>
+            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Seller Dashboard</h1>
+            <p style="color:var(--gray);max-width:450px;margin-top:0.5rem;">List products on the marketplace or review your sales analytics.</p>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tabListBtn"      onclick="switchTab('list')">📦 Product Listing</button>
+            <button class="tab-btn"        id="tabAnalyticsBtn" onclick="switchTab('analytics')">📈 Analytics</button>
+            <button class="tab-btn"        id="tabRentingBtn"   onclick="switchTab('renting')">👨‍🌾 Farmer's Renting List</button>
+            <button class="tab-btn"        id="tabSellingBtn"   onclick="switchTab('selling')">🛒 Farmer's Selling List</button>
+        </div>
+
+        <!-- ===== TAB: LIST PRODUCTS ===== -->
+        <div class="tab-panel active" id="panelList">
+            <div class="glass-card animate-up" style="max-width:820px; margin: 0 auto 2.5rem auto;">
+                <h3 style="font-weight:700;color:#fff;margin-bottom:0.25rem;">💰 New Product Listing</h3>
+                <p style="color:var(--gray-dim);font-size:0.88rem;margin-bottom:2rem;">Fill in the details to list your produce.</p>
+
+                <form id="listingForm">
+                    <div class="form-grid">
+                        <div class="input-group full">
+                            <label>Product Name <span style="color:var(--emerald)">*</span></label>
+                            <input type="text" id="prodName" placeholder="e.g. Organic Tomatoes" required>
+                        </div>
+
+                        <div class="input-group full">
+                            <label>Product Description <span style="color:var(--emerald)">*</span></label>
+                            <textarea id="prodDesc" rows="3" placeholder="Describe the produce..." required
+                                style="width:100%;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--r-sm);padding:11px 15px;color:#fff;font-family:inherit;font-size:0.9rem;resize:vertical;outline:none;transition:border-color .2s;"></textarea>
+                        </div>
+
+                        <!-- Full Row: Image Upload -->
+                        <div class="input-group full">
+                            <label>Product Image <span style="color:var(--emerald)">*</span></label>
+                            <div class="upload-box" id="imageBox" style="padding: 3rem;">
+                                <input type="file" id="prodImage" accept="image/*" required onchange="previewFile(this,'imageBox','imagePreview')">
+                                <div class="upload-icon" style="font-size: 3rem;">🖼️</div>
+                                <p style="font-size:1.1rem;margin:0;font-weight:600;">Click or drag to upload image</p>
+                                <p style="color:var(--gray-dim);font-size:0.82rem;margin-top:0.4rem;">High quality photos recommended</p>
+                                <img id="imagePreview" src="" alt="" style="display:none;margin:0 auto;margin-top:1.5rem;max-height:200px;border-radius:12px;max-width:100%;border:2px solid var(--border-3);">
+                            </div>
+                        </div>
+
+                        <!-- Full Row: Age (Intermediate) -->
+                        <div class="input-group full">
+                            <label>Product Age <span style="color:var(--emerald)">*</span></label>
+                            <input type="text" id="prodAge" placeholder="e.g. Freshly harvested / 3 days old" required>
+                        </div>
+
+                        <!-- Full Row: Listing Type -->
+                        <div class="input-group full">
+                            <label>Listing Type <span style="color:var(--emerald)">*</span></label>
+                            <select id="listingType" required onchange="handleListingType(this.value)">
+                                <option value="" disabled selected>— Select —</option>
+                                <option value="buy">🛒 Buy</option>
+                                <option value="rent">📅 Rent</option>
+                                <option value="both">🔀 Both</option>
+                            </select>
+                        </div>
+
+                        <!-- Full Row: Pricing (Dynamic) -->
+                        <div class="input-group full" id="pricingRow" style="display: flex; gap: 1rem; border: none; padding: 0;">
+                            <div id="buyPriceGroup" style="display:none; flex: 1;">
+                                <label>Buying Price (₹)</label>
+                                <input type="number" id="prodBuyPrice" placeholder="e.g. 450">
+                            </div>
+                            <div id="rentPriceGroup" style="display:none; flex: 1;">
+                                <label>Renting Price (Per day) (₹)</label>
+                                <input type="number" id="prodRentPrice" placeholder="e.g. 30">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-primary" style="width:100%;margin-top:1.5rem;padding:14px;font-size:1rem;">📝 Confirm Listing</button>
+                </form>
+            </div>
+
+            <!-- Management Section (Moved here from Analytics) -->
+            <div class="glass-card animate-up">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="font-weight:700;color:#fff;margin-bottom:0.25rem;">🛠️ Manage Listings</h3>
+                        <p style="color:var(--gray-dim);font-size:0.88rem;">Delete or restore your products from the marketplace.</p>
+                    </div>
+                    <!-- Mini Filter Buttons -->
+                    <div class="tab-bar" style="margin: 0; padding: 4px; background: var(--bg-2); border-radius: 8px;">
+                        <button class="tab-btn active" onclick="filterManage('all')" id="mgmtAllBtn" style="padding: 6px 16px; font-size: 0.75rem;">All</button>
+                        <button class="tab-btn" onclick="filterManage('active')" id="mgmtActiveBtn" style="padding: 6px 16px; font-size: 0.75rem;">Live</button>
+                        <button class="tab-btn" onclick="filterManage('deleted')" id="mgmtDeletedBtn" style="padding: 6px 16px; font-size: 0.75rem;">Deleted</button>
+                    </div>
+                </div>
+
+                <div id="productList" class="management-list">
+                    <p style="color:var(--gray-dim);text-align:center;padding:3rem;">No products found.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: ANALYTICS ===== -->
+        <div class="tab-panel" id="panelAnalytics">
+            
+            <div class="portal-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+                
+                <!-- Stats & Revenue -->
+                <div class="glass-card animate-up" style="height: 100%;">
+                    <h3 style="font-weight:700;color:#fff;margin-bottom:1.5rem;">📈 Sales Performance</h3>
+                    <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Listed</div>
+                            <div class="stat-value" id="anTotal" style="color:var(--sapphire);">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Sold</div>
+                            <div class="stat-value" id="anSold" style="color:var(--emerald);">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Rented</div>
+                            <div class="stat-value" id="anRented" style="color:var(--violet);">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="revenue-row" style="display:flex; justify-content:space-between; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px;">
+                        <span style="color:var(--gray);">Today's Revenue</span>
+                        <span id="revDay" style="color:#fff;font-weight:700;">₹0.00</span>
+                    </div>
+                    <div class="revenue-row" style="display:flex; justify-content:space-between; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px;">
+                        <span style="color:var(--gray);">Weekly Revenue</span>
+                        <span id="revWeek" style="color:#fff;font-weight:700;">₹0.00</span>
+                    </div>
+                    <div class="revenue-row" style="display:flex; justify-content:space-between; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px;">
+                        <span style="color:var(--gray);">Monthly Revenue</span>
+                        <span id="revMonth" style="color:#fff;font-weight:700;">₹0.00</span>
+                    </div>
+                    <div class="revenue-row" style="display:flex; justify-content:space-between; padding: 12px; background: rgba(0,230,118,0.05); border: 1px solid rgba(0,230,118,0.1); border-radius: 8px;">
+                        <span style="color:var(--gray);">Yearly Revenue</span>
+                        <span id="revYear" style="color:var(--emerald);font-weight:800;">₹0.00</span>
+                    </div>
+                </div>
+
+                <!-- Revenue Overview Chart -->
+                <div class="glass-card animate-up" style="height: 100%;">
+                    <h3 style="font-weight:700;color:#fff;margin-bottom:1.5rem;">📊 Revenue Overview</h3>
+                    <div style="height: calc(100% - 3rem); position: relative;">
+                        <canvas id="chartRevenue"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- ===== TAB: RENTING LIST ===== -->
+        <div class="tab-panel" id="panelRenting">
+            <div class="glass-card animate-up" style="max-width:1100px; margin: 0 auto 2.5rem auto; padding: 2rem;">
+                <h3 style="font-weight:700;color:#fff;margin-bottom:0.25rem;">👨‍🌾 Farmer's Renting List</h3>
+                <p style="color:var(--gray-dim);font-size:0.88rem;margin-bottom:2rem;">Track active and completed rentals from farmers.</p>
+
+                <div class="table-container" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--border);">
+                                <th style="padding: 12px; color: var(--emerald);">Farmer Name</th>
+                                <th style="padding: 12px; color: var(--emerald);">Product</th>
+                                <th style="padding: 12px; color: var(--emerald);">Order ID</th>
+                                <th style="padding: 12px; color: var(--emerald);">Days</th>
+                                <th style="padding: 12px; color: var(--emerald);">Start Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">End Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">Total Amount</th>
+                                <th style="padding: 12px; color: var(--emerald);">Per Day Amount</th>
+                                <th style="padding: 12px; color: var(--emerald);">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rentingListBody">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noRentingData" class="hidden" style="text-align: center; padding: 4rem;">
+                    <p style="color: var(--gray-dim); font-size: 1.1rem;">No rental records found.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ===== TAB: SELLING LIST ===== -->
+        <div class="tab-panel" id="panelSelling">
+            <div class="glass-card animate-up" style="max-width:1100px; margin: 0 auto 2.5rem auto; padding: 2rem;">
+                <h3 style="font-weight:700;color:#fff;margin-bottom:0.25rem;">🛒 Farmer's Selling List</h3>
+                <p style="color:var(--gray-dim);font-size:0.88rem;margin-bottom:2rem;">Track direct product sales and purchase history from farmers.</p>
+
+                <div class="table-container" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--border);">
+                                <th style="padding: 12px; color: var(--emerald);">Farmer Name</th>
+                                <th style="padding: 12px; color: var(--emerald);">Product Name</th>
+                                <th style="padding: 12px; color: var(--emerald);">Order ID</th>
+                                <th style="padding: 12px; color: var(--emerald);">Purchased Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">Received Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">Total Amount</th>
+                                <th style="padding: 12px; color: var(--emerald);">Quantity</th>
+                                <th style="padding: 12px; color: var(--emerald);">Amount / Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellingListBody">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noSellingData" class="hidden" style="text-align: center; padding: 4rem;">
+                    <p style="color: var(--gray-dim); font-size: 1.1rem;">No selling records found.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast"></div>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/seller.js"></script>
+
+    <script>
+
+
+        function previewFile(input, boxId, previewId) {
+            const file = input.files[0];
+            if (!file) return;
+            const preview = document.getElementById(previewId);
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        }
+        
+        function filterManage(type) {
+            document.querySelectorAll('.management-list ~ .tab-bar .tab-btn, #panelList .tab-bar .tab-btn').forEach(b => {
+                if(b.id.startsWith('mgmt')) b.classList.remove('active');
+            });
+            if (type === 'all') document.getElementById('mgmtAllBtn').classList.add('active');
+            if (type === 'active') document.getElementById('mgmtActiveBtn').classList.add('active');
+            if (type === 'deleted') document.getElementById('mgmtDeletedBtn').classList.add('active');
+            
+            window.dispatchEvent(new CustomEvent('seller:filterManage', { detail: type }));
+        }
+    </script>
+</body>
+</html>

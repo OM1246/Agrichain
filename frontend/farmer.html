@@ -2,67 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Dashboard | AgriChain</title>
+    <title>Farmer Portal — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        // Auth Gatekeeper: Immediate redirection if not logged in
+        if (!localStorage.getItem('farmerToken')) {
+            window.location.href = 'farmer-auth.html';
+        }
+    </script>
+    <style>
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
 </head>
 <body>
-    
+
     <nav class="glass-nav">
-        <div class="logo">AgriChain</div>
+        <div class="logo">Agri<span>Chain</span></div>
         <div class="nav-links">
-            <a href="index.html">Marketplace</a>
-            <a href="farmer.html" class="active">Farmer</a>
-            <a href="logistics.html">Logistics</a>
-            <a href="shop.html">Shop</a>
-            <a href="verify.html">Verify</a>
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html" class="active">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html">Admin</a>
         </div>
-        <div class="wallet-connect">
-            <button id="connectWalletBtn" class="btn-primary">Connect Wallet</button>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <div id="farmerIdentity" style="color:var(--gray); font-size:0.9rem; font-weight:600; display:none;">
+                <span style="color:var(--emerald); margin-right:4px;">👨‍🌾</span> <span id="farmerNameDisplay">Farmer</span>
+            </div>
+            <button id="logoutBtn" class="btn-primary" style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.2); color:#ff3b30; padding: 8px 16px;">🚪 Logout</button>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
         </div>
     </nav>
 
-    <main class="container">
-        <h1 class="section-title">👨🌾 Farmer Dashboard</h1>
-        
-        <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
-            <h3>🌱 1. Digital Harvest Registration</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Create a permanent blockchain identity for your produce.</p>
-            
-            <form id="registerForm">
-                <div class="input-group">
-                    <label>Product Name</label>
-                    <input type="text" id="pName" placeholder="e.g. Organic Braeburn Apples" required>
-                </div>
-                <div class="input-group">
-                    <label>Farm Location</label>
-                    <input type="text" id="pOrigin" placeholder="e.g. Green Valley Farms, WA" required>
-                </div>
-                <div class="input-group">
-                    <label>Harvest Date</label>
-                    <input type="date" id="pHarvestDate" required style="color-scheme: dark;">
-                </div>
-                <div class="input-group">
-                    <label>Batch / Description</label>
-                    <input type="text" id="pDesc" placeholder="e.g. Lot #902 - Premium Grade">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%">Mint Asset & Generate ID</button>
-            </form>
+    <main class="container" style="padding-top:3rem;padding-bottom:5rem;">
 
-            <div id="qrResult" class="glass-card hidden" style="margin-top: 2rem; text-align: center; border: 1px solid var(--primary-color);">
-                <h3 style="color: var(--primary-color)">✅ Asset Created!</h3>
-                <p style="margin-bottom: 1rem">Scan this to tell the story.</p>
-                <div id="qrcode" style="display: inline-block; padding: 15px; background: white; border-radius: 8px;"></div>
-                <p id="productIdDisplay" style="margin-top: 1rem; font-weight: bold; font-size: 1.2rem;"></p>
+
+        <!-- Header -->
+        <div class="animate-up" style="margin-bottom:2.5rem;">
+            <div class="badge" style="color:var(--emerald);background:var(--emerald-dim);border-color:rgba(0,229,160,0.25);">🌾 Farmer Portal</div>
+            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Farmer Dashboard</h1>
+            <p style="color:var(--gray);max-width:450px;margin-top:0.5rem;">Browse the agricultural marketplace or track your procurement analytics.</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-bar animate-up" style="animation-delay: 0.05s;">
+            <button id="tabMarket" class="tab-btn active" onclick="switchTab('market')">🛒 Marketplace</button>
+            <button id="tabAnalytics" class="tab-btn" onclick="switchTab('analytics')">📊 Analytics</button>
+            <button id="tabTrack" class="tab-btn" onclick="switchTab('track')">🔍 Track My Order</button>
+            <button id="tabRental" class="tab-btn" onclick="switchTab('rental')">📑 My Rental Orders</button>
+        </div>
+
+        <!-- Marketplace Section -->
+        <div id="panelProducts" class="tab-content animate-up" style="animation-delay: 0.1s;">
+            <div style="margin-bottom:2.5rem;">
+                <h2 class="section-title" style="font-size:1.8rem;margin-bottom:0.5rem;">Marketplace</h2>
+                <div style="width: 50px; height: 3px; background: var(--emerald); border-radius: 99px;"></div>
+            </div>
+
+            <!-- Loader -->
+            <div id="marketLoader" style="text-align:center;padding:5rem;">
+                <div style="display:inline-block;width:48px;height:48px;border:4px solid var(--border-2);border-top-color:var(--emerald);border-radius:50%;animation:spin 1s linear infinite;"></div>
+                <p style="margin-top:1.5rem;color:var(--gray);font-weight:600;letter-spacing:0.05em;">SYNCHRONIZING MARKETPLACE...</p>
+            </div>
+
+            <div id="marketGrid" class="marketplace-grid hidden"></div>
+
+            <div id="noProducts" class="empty-state-v2 hidden">
+                <div class="empty-state-icon">🚜</div>
+                <h3 style="font-size:1.5rem;color:#fff;margin-bottom:0.5rem;">The fields are quiet...</h3>
+                <p style="color:var(--gray);font-size:1rem;">There are no products listed in the marketplace right now.<br>Sellers will add fresh inventory soon.</p>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="panelAnalytics" class="tab-content animate-up hidden" style="animation-delay: 0.1s;">
+            <div style="margin-bottom:2.5rem;">
+                <h2 class="section-title" style="font-size:1.8rem;margin-bottom:0.5rem;">Market Analytics</h2>
+                <div style="width: 50px; height: 3px; background: var(--emerald); border-radius: 99px;"></div>
+            </div>
+
+            <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem;">
+                <div class="glass-card" style="padding: 2rem; border-radius: 20px;">
+                    <h3 style="margin-bottom: 1.5rem; color: #fff;">Market Activity (Purchases vs Rentals)</h3>
+                    <canvas id="marketActivityChart"></canvas>
+                </div>
+                <div class="glass-card" style="padding: 2rem; border-radius: 20px;">
+                    <h3 style="margin-bottom: 1.5rem; color: #fff;">Spending Overview (₹)</h3>
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Stats Mini Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                <div class="glass-card" style="padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem;">Total Spent</div>
+                    <div id="statTotalSpent" style="font-size: 1.8rem; font-weight: 800; color: var(--emerald);">₹0</div>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem;">Total Items Bought</div>
+                    <div id="statItemsBought" style="font-size: 1.8rem; font-weight: 800; color: #fff;">0</div>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 0.5rem;">Total Items Rented</div>
+                    <div id="statItemsRented" style="font-size: 1.8rem; font-weight: 800; color: #fff;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Track Order Section -->
+        <div id="panelTrack" class="tab-content animate-up hidden" style="animation-delay: 0.1s;">
+            <div style="margin-bottom:2.5rem;">
+                <h2 class="section-title" style="font-size:1.8rem;margin-bottom:0.5rem;">Track My Order</h2>
+                <div style="width: 50px; height: 3px; background: var(--emerald); border-radius: 99px;"></div>
+            </div>
+
+            <div class="glass-card" style="padding: 2.5rem; text-align: center;">
+                <h3 style="color: #fff; margin-bottom: 1rem; font-weight: 700;">Enter Order ID to track</h3>
+                <p style="color:var(--gray); font-size:0.95rem; margin-bottom: 2rem;">Paste your unique blockchain transaction or Order ID below.</p>
+                <div style="max-width: 500px; margin: 0 auto; display: flex; gap: 10px;">
+                    <input type="text" id="trackInput" placeholder="Order ID (e.g. #AG-12345)" style="flex: 1;">
+                    <button class="btn-primary" onclick="window.trackOrder()">🔍 Track Now</button>
+                </div>
+            </div>
+
+            <div id="trackResult" class="hidden" style="margin-top: 2rem;">
+                <div class="glass-card" style="padding: 2rem; border-left: 4px solid var(--emerald);">
+                    <h3 style="color: #fff; margin-bottom: 1rem;">Tracking Details</h3>
+                    <div id="trackContent" style="color: var(--gray); font-size: 0.95rem;"></div>
+                </div>
+            </div>
+            
+            <div class="empty-state-v2" style="margin-top: 2rem; padding: 3rem;">
+                <div class="empty-state-icon">🛡️</div>
+                <h3 style="font-size:1.3rem;color:#fff;margin-bottom:0.5rem;">Blockchain Secure Tracking</h3>
+                <p style="color:var(--gray);font-size:0.9rem;">Real-time transparency powered by immutable records.</p>
+            </div>
+        </div>
+
+        </div>
+
+        <!-- My Rental Orders Section -->
+        <div id="panelRental" class="tab-content animate-up hidden" style="animation-delay: 0.1s;">
+            <div style="margin-bottom:2.5rem;">
+                <h2 class="section-title" style="font-size:1.8rem;margin-bottom:0.5rem;">My Rental Orders</h2>
+                <div style="width: 50px; height: 3px; background: var(--emerald); border-radius: 99px;"></div>
+            </div>
+
+            <div class="glass-card" style="padding: 2rem;">
+                <div class="table-container" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--border);">
+                                <th style="padding: 12px; color: var(--emerald);">Product Name</th>
+                                <th style="padding: 12px; color: var(--emerald);">No of Days</th>
+                                <th style="padding: 12px; color: var(--emerald);">Start Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">End Date</th>
+                                <th style="padding: 12px; color: var(--emerald);">Total Amount</th>
+                                <th style="padding: 12px; color: var(--emerald);">Per Day Amount</th>
+                                <th style="padding: 12px; color: var(--emerald);">Status</th>
+                                <th style="padding: 12px; color: var(--emerald);">Order ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rentalOrdersBody">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noRentalData" class="hidden" style="text-align: center; padding: 4rem;">
+                    <p style="color: var(--gray-dim); font-size: 1.1rem;">You haven't rented any products yet.</p>
+                    <button class="btn-outline" style="margin-top: 1rem;" onclick="switchTab('market')">🛒 Go to Marketplace</button>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- LOAD LIBRARIES WITH SCRIPT TAGS TO AVOID ESM ISSUES -->
+    <div id="toast"></div>
+
     <script src="js/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/qrcode.min.js"></script>
-    <!-- GLOBAL LOGIC -->
     <script type="module" src="js/global.js"></script>
     <script type="module" src="js/farmer.js"></script>
 </body>

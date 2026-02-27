@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html" class="active">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a href="seller-auth.html" class="btn-primary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-2); color:#fff;">👤 Seller Login</a>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top:3rem;padding-bottom:5rem;">
+
+        <div class="animate-up" style="margin-bottom:3rem;">
+            <div class="badge" style="color:var(--sapphire);background:var(--sapphire-dim);border-color:rgba(61,158,255,0.25);">🛡️ Admin Portal</div>
+            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Logistics &amp; Verification</h1>
+            <p style="color:var(--gray);max-width:450px;margin-top:0.5rem;">Update supply chain stages and verify product provenance on-chain.</p>
+        </div>
+
+        <div class="portal-grid" style="grid-template-columns:1fr 1fr;">
+
+            <!-- Stage Update -->
+            <div class="glass-card animate-up">
+                <h3 style="font-weight:700;margin-bottom:0.25rem;color:#fff;">🚚 Update Stage</h3>
+                <p style="color:var(--gray-dim);margin-bottom:2rem;font-size:0.88rem;">Change the supply chain status of a registered product.</p>
+
+                <form id="stageForm">
+                    <div class="input-group">
+                        <label>Product ID</label>
+                        <input type="number" id="stageId" placeholder="Enter Product ID" required>
+                    </div>
+                    <div class="input-group">
+                        <label>New Stage</label>
+                        <select id="newStageSelect" required>
+                            <option value="1">In Transit</option>
+                            <option value="2">Stored (Warehouse)</option>
+                            <option value="3">At Retail (Shop)</option>
+                            <option value="4">Sold</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Current Location</label>
+                        <input type="text" id="stageLoc" placeholder="e.g. Distribution Center, Mumbai" required>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%;">📡 Broadcast Update</button>
+                </form>
+            </div>
+
+            <!-- Verification -->
+            <div class="glass-card animate-up">
+                <h3 style="font-weight:700;margin-bottom:0.25rem;color:#fff;">🔍 Verify Product</h3>
+                <p style="color:var(--gray-dim);margin-bottom:2rem;font-size:0.88rem;">Look up the full blockchain history of any product.</p>
+
+                <div class="input-group">
+                    <label>Product ID</label>
+                    <input type="number" id="verifyIdInput" placeholder="Enter Product ID">
+                </div>
+                <button id="verifyBtn" class="btn-primary" style="width:100%;">🔎 Search History</button>
+
+                <div id="verifyResult" class="hidden" style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+                    <div id="productInfo" style="margin-bottom:1.5rem;"></div>
+                    <h4 style="color:var(--gray-dim);font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem;">Blockchain History</h4>
+                    <div id="historyTimeline" style="padding-left:1.25rem;border-left:2px solid var(--sapphire);"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/ethers.umd.min.js"></script>
+    <script type="module" src="js/global.js"></script>
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

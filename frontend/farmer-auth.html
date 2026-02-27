@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Login — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Auto-redirect if already logged in
+        if (localStorage.getItem('farmerToken')) {
+            window.location.href = 'farmer.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html" class="active">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card animate-up">
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
+                <div class="auth-tab" onclick="switchAuth('signup')">Sign Up</div>
+            </div>
+
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome to<br>Farmer's Portal</h2>
+                <p>Login to manage your farm produce</p>
+                <div class="input-group full">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="name@farm.com">
+                </div>
+                <div class="input-group full">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" placeholder="••••••••">
+                </div>
+                <button onclick="handleAuth('login')" class="btn-primary btn-auth">🔓 Secure Login</button>
+            </div>
+
+            <div id="signupForm" class="auth-form hidden">
+                <h2>Create Account<br>For Farmer's Portal</h2>
+                <p>Start your journey as an AgriChain farmer</p>
+                <div class="input-group full">
+                    <label>Farmer Name</label>
+                    <input type="text" id="signupName" placeholder="e.g. John Doe">
+                </div>
+                <div class="input-group full">
+                    <label>Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="name@farm.com">
+                </div>
+                <div class="input-group full">
+                    <label>Farm Location</label>
+                    <input type="text" id="signupLocation" placeholder="e.g. Punjab, India">
+                </div>
+                <div class="input-group full">
+                    <label>Password</label>
+                    <input type="password" id="signupPass" placeholder="••••••••">
+                </div>
+                <button onclick="handleAuth('signup')" class="btn-primary btn-auth" style="background:var(--emerald); border-color:var(--emerald);">🚀 Create Account</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/auth/farmer';
+
+        function switchAuth(type) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const tabs = document.querySelectorAll('.auth-tab');
+
+            if (type === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
+        }
+
+        async function handleAuth(type) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Processing...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                let body = {};
+                if (type === 'signup') {
+                    body = {
+                        farmerName: document.getElementById('signupName').value,
+                        email: document.getElementById('signupEmail').value,
+                        farmLocation: document.getElementById('signupLocation').value,
+                        password: document.getElementById('signupPass').value
+                    };
+                } else {
+                    body = {
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPass').value
+                    };
+                }
+
+                const res = await fetch(`${API_URL}/${type}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('farmerToken', data.token);
+                    localStorage.setItem('farmerData', JSON.stringify(data.farmer));
+                    window.location.href = 'farmer.html';
+                } else {
+                    alert(data.message || 'Authentication failed');
+                }
+            } catch (error) {
+                console.error('Auth Error:', error);
+                alert('Connection error. Is the backend running?');
+            } finally {
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'all';
+            }
+        }
+    </script>
+</body>
+</html>
