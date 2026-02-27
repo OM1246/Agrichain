@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        if (!localStorage.getItem('farmerToken')) {
+            window.location.href = 'farmer-auth.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html" class="active">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin.html">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <button onclick="window.location.href='farmer.html'" class="btn-outline" style="padding: 8px 16px;">← Back to Dashboard</button>
+        </div>
+    </nav>
+
+    <main class="container" style="padding-top:3rem;padding-bottom:5rem;">
+
+        <!-- Header -->
+        <div class="animate-up" style="margin-bottom:2.5rem; text-align:center;">
+            <div class="badge" style="color:var(--emerald);background:var(--emerald-dim);border-color:rgba(0,229,160,0.25); margin: 0 auto;">💳 Payment Gateway</div>
+            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Complete Your Rental</h1>
+            <p style="color:var(--gray);max-width:450px;margin:0.5rem auto 0;">Choose your preferred payment method to complete the transaction securely.</p>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="glass-card animate-up" style="max-width:600px; margin:0 auto 2.5rem auto; padding:2rem;">
+            <h3 style="font-weight:700;color:#fff;margin-bottom:1.25rem;">📋 Order Summary</h3>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
+                    <span style="color:var(--gray);">Product</span>
+                    <span id="payProductName" style="color:#fff;font-weight:700;">—</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
+                    <span style="color:var(--gray);">Rental Duration</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="number" id="payDaysInput" min="1" value="1" style="width:70px; padding:8px 10px; text-align:center; font-size:1rem; font-weight:700; background:var(--bg-2); border:1px solid var(--border-2); border-radius:8px; color:#fff;" oninput="updateTotal()">
+                        <span style="color:var(--gray-dim); font-size:0.85rem;">days</span>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
+                    <span style="color:var(--gray);">Per Day Rate</span>
+                    <span id="payPerDay" style="color:#fff;font-weight:700;">—</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:12px; background:rgba(0,229,160,0.06); border:1px solid rgba(0,229,160,0.15); border-radius:8px;">
+                    <span style="color:var(--emerald);font-weight:700;">Total Amount</span>
+                    <span id="payTotal" style="color:var(--emerald);font-weight:900;font-size:1.25rem;">—</span>
+                </div>
+            </div>
+            <div style="margin-top:1rem; padding:8px 12px; background:rgba(155,109,255,0.08); border:1px solid rgba(155,109,255,0.15); border-radius:8px; display:flex; align-items:center; gap:8px;">
+                <span style="font-size:0.8rem; color:var(--violet); font-family:monospace; font-weight:700;" id="payOrderId">—</span>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div style="max-width:600px; margin:0 auto;">
+            <h3 class="animate-up" style="font-weight:700;color:#fff;margin-bottom:1.5rem; font-size:1.2rem;">Select Payment Method</h3>
+
+            <!-- Option 1: Credit/Debit Card -->
+            <div class="glass-card animate-up payment-option" onclick="selectPayment('card')" id="optCard" style="cursor:pointer; margin-bottom:1rem; padding:1.5rem 2rem; transition: all 0.3s;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:56px;height:56px; background:linear-gradient(135deg, rgba(61,158,255,0.15), rgba(61,158,255,0.05)); border:1px solid rgba(61,158,255,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">
+                        💳
+                    </div>
+                    <div style="flex:1;">
+                        <h4 style="color:#fff; font-weight:800; font-size:1.05rem; margin-bottom:4px;">Credit / Debit Card</h4>
+                        <p style="color:var(--gray-dim); font-size:0.82rem; margin:0;">Visa, Mastercard, RuPay — Instant processing</p>
+                    </div>
+                    <div class="pay-check" style="width:24px;height:24px;border:2px solid var(--border-2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.3s;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Option 2: UPI -->
+            <div class="glass-card animate-up payment-option" onclick="selectPayment('upi')" id="optUpi" style="cursor:pointer; margin-bottom:1rem; padding:1.5rem 2rem; transition: all 0.3s;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:56px;height:56px; background:linear-gradient(135deg, rgba(0,229,160,0.15), rgba(0,229,160,0.05)); border:1px solid rgba(0,229,160,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">
+                        📱
+                    </div>
+                    <div style="flex:1;">
+                        <h4 style="color:#fff; font-weight:800; font-size:1.05rem; margin-bottom:4px;">Pay with UPI</h4>
+                        <p style="color:var(--gray-dim); font-size:0.82rem; margin:0;">Google Pay, PhonePe, Paytm — Direct bank transfer</p>
+                    </div>
+                    <div class="pay-check" style="width:24px;height:24px;border:2px solid var(--border-2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.3s;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Option 3: Crypto -->
+            <div class="glass-card animate-up payment-option" onclick="selectPayment('crypto')" id="optCrypto" style="cursor:pointer; margin-bottom:2rem; padding:1.5rem 2rem; transition: all 0.3s;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:56px;height:56px; background:linear-gradient(135deg, rgba(155,109,255,0.15), rgba(155,109,255,0.05)); border:1px solid rgba(155,109,255,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">
+                        🪙
+                    </div>
+                    <div style="flex:1;">
+                        <h4 style="color:#fff; font-weight:800; font-size:1.05rem; margin-bottom:4px;">Pay with Crypto</h4>
+                        <p style="color:var(--gray-dim); font-size:0.82rem; margin:0;">MetaMask / Wallet — Blockchain-secured payment</p>
+                    </div>
+                    <div class="pay-check" style="width:24px;height:24px;border:2px solid var(--border-2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.3s;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proceed Button -->
+            <button id="proceedBtn" class="btn-primary" disabled style="width:100%; padding:16px; font-size:1rem; border-radius:14px; opacity:0.5; cursor:not-allowed;" onclick="proceedPayment()">
+                Select a payment method to continue
+            </button>
+        </div>
+
+    </main>
+
+    <div id="toast"></div>
+
+    <style>
+        .payment-option.selected {
+            border-color: var(--emerald) !important;
+            box-shadow: 0 0 0 1px var(--emerald-dim), 0 8px 32px rgba(0,229,160,0.15) !important;
+        }
+        .payment-option.selected .pay-check {
+            border-color: var(--emerald) !important;
+            background: var(--emerald) !important;
+        }
+        .payment-option.selected .pay-check::after {
+            content: '✓';
+            color: #000;
+            font-weight: 900;
+            font-size: 0.75rem;
+        }
+        .payment-option:hover:not(.selected) {
+            border-color: var(--border-3) !important;
+        }
+    </style>
+
+    <script>
+        // ── Load order data from sessionStorage ──────────────────
+        let selectedMethod = null;
+        const orderData = JSON.parse(sessionStorage.getItem('pendingRental') || 'null');
+
+        if (!orderData) {
+            document.querySelector('main').innerHTML = `
+                <div style="text-align:center; padding:8rem 2rem;">
+                    <p style="color:var(--gray); font-size:1.2rem; margin-bottom:1rem;">⚠️ No pending order found.</p>
+                    <a href="farmer.html" class="btn-primary">← Back to Marketplace</a>
+                </div>
+            `;
+        } else {
+            document.getElementById('payProductName').textContent = orderData.productName;
+            document.getElementById('payPerDay').textContent = '₹' + orderData.perDay;
+            document.getElementById('payOrderId').textContent = 'Order: ' + orderData.orderId;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            if (!orderData) return;
+            const days = parseInt(document.getElementById('payDaysInput').value) || 0;
+            const total = days * orderData.perDay;
+            document.getElementById('payTotal').textContent = '₹' + total.toFixed(2);
+
+            // Update proceed button if a method is selected
+            if (selectedMethod) {
+                const labels = { card: '💳 Pay with Card', upi: '📱 Pay with UPI', crypto: '🪙 Pay with Crypto' };
+                document.getElementById('proceedBtn').textContent = labels[selectedMethod] + ' — ₹' + total.toFixed(2);
+            }
+        }
+
+        // ── Payment selection ────────────────────────────────────
+
+        function selectPayment(method) {
+            selectedMethod = method;
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById('opt' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('selected');
+
+            const btn = document.getElementById('proceedBtn');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+
+            const days = parseInt(document.getElementById('payDaysInput').value) || 0;
+            const total = days * orderData.perDay;
+            const labels = { card: '💳 Pay with Card', upi: '📱 Pay with UPI', crypto: '🪙 Pay with Crypto' };
+            btn.textContent = labels[method] + ' — ₹' + total.toFixed(2);
+        }
+
+        // ── Toast ────────────────────────────────────────────────
+        function toast(msg) {
+            const c = document.getElementById('toast');
+            if (!c) return;
+            const el = document.createElement('div');
+            el.className = 'toast-item';
+            el.textContent = msg;
+            c.appendChild(el);
+            setTimeout(() => el.remove(), 3300);
+        }
+
+        // ── Proceed (completes the rental) ─────────────────────
+        async function proceedPayment() {
+            if (!selectedMethod || !orderData) return;
+
+            const rentDays = parseInt(document.getElementById('payDaysInput').value);
+            if (isNaN(rentDays) || rentDays <= 0) { toast('⚠️ Please enter a valid number of days.'); return; }
+
+            const totalPrice = rentDays * orderData.perDay;
+            const end = new Date();
+            end.setDate(end.getDate() + rentDays);
+            const rentEnd = end.toISOString();
+
+            const btn = document.getElementById('proceedBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing payment...';
+            btn.style.opacity = '0.6';
+
+            const resumeBtn = () => {
+                const labels = { card: '💳 Pay with Card', upi: '📱 Pay with UPI', crypto: '🪙 Pay with Crypto' };
+                btn.disabled = false;
+                btn.textContent = labels[selectedMethod] + ' — ₹' + totalPrice.toFixed(2);
+                btn.style.opacity = '1';
+            };
+
+            if (selectedMethod === 'crypto') {
+                if (!window.ethereum) {
+                    toast('⚠️ Please install MetaMask to pay with crypto!');
+                    resumeBtn();
+                    return;
+                }
+                
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const from = accounts[0];
+                    // Receiver: Using a mock Hardhat address or any valid address
+                    const to = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"; 
+                    
+                    // Convert roughly 1 INR = 0.00001 ETH for demo
+                    const ethAmount = (totalPrice * 0.00001).toFixed(4);
+                    // Convert ETH to Wei (hex strings are required by eth_sendTransaction)
+                    // Math.floor(ethAmount * 1e18) to avoid floating point issues
+                    const weiAmount = '0x' + (Math.floor(ethAmount * 1e18)).toString(16);
+                    
+                    btn.textContent = '🦊 Confirm in MetaMask...';
+                    
+                    const txHash = await window.ethereum.request({
+                        method: 'eth_sendTransaction',
+                        params: [{
+                            from: from,
+                            to: to,
+                            value: weiAmount
+                        }]
+                    });
+                    
+                    toast('🔗 Transaction Sent! Hash: ' + txHash.substring(0, 8) + '...');
+                    btn.textContent = '⏳ Awaiting Confirmation...';
+                    
+                    // In a real app we would wait for the receipt. Here we proceed.
+                } catch (error) {
+                    console.error("MetaMask Error:", error);
+                    toast('❌ Crypto transaction failed or rejected!');
+                    resumeBtn();
+                    return;
+                }
+            }
+
+            // Simulate slight delay for normal methods, or finalize crypto after TX
+            setTimeout(() => {
+                // Complete the actual purchase in localStorage
+                const SELLER_KEY = 'agrichain_listings';
+                const PURCHASE_KEY = 'agrichain_purchases';
+
+                const listings = JSON.parse(localStorage.getItem(SELLER_KEY) || '[]');
+                const idx = listings.findIndex(l => String(l.id) === String(orderData.listingId));
+
+                if (idx !== -1) {
+                    listings[idx].status = 'rented';
+                    listings[idx].revenue = (listings[idx].revenue || 0) + totalPrice;
+                    localStorage.setItem(SELLER_KEY, JSON.stringify(listings));
+                }
+
+                const purchases = JSON.parse(localStorage.getItem(PURCHASE_KEY) || '[]');
+                purchases.push({
+                    orderId: orderData.orderId,
+                    farmerName: orderData.farmerName,
+                    name: orderData.productName,
+                    image: orderData.image,
+                    action: 'rent',
+                    price: totalPrice,
+                    rentDays: rentDays,
+                    quantity: 1,
+                    rentStart: new Date().toISOString(),
+                    rentEnd: rentEnd,
+                    at: new Date().toISOString(),
+                    paymentMethod: selectedMethod
+                });
+                localStorage.setItem(PURCHASE_KEY, JSON.stringify(purchases));
+
+                // Clean up
+                sessionStorage.removeItem('pendingRental');
+
+                // Show success
+                btn.textContent = '✅ Payment Successful!';
+                btn.style.background = 'var(--emerald)';
+                btn.style.opacity = '1';
+                toast('✅ Rental confirmed! Redirecting...');
+
+                setTimeout(() => {
+                    window.location.href = 'farmer.html';
+                }, 2000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

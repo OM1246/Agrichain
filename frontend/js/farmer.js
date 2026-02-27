@@ -209,8 +209,8 @@ function renderRentalOrders() {
                 <td style="padding: 12px; color:#fff;">${r.rentDays} days</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${new Date(r.rentStart).toLocaleDateString()}</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${new Date(r.rentEnd).toLocaleDateString()}</td>
-                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${r.price}</td>
                 <td style="padding: 12px; color:#fff;">₹${perDay}</td>
+                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${r.price}</td>
                 <td style="padding: 12px; font-weight:600;">${statusText}</td>
                 <td style="padding: 12px; font-family: monospace; color:var(--violet);">${r.orderId}</td>
             </tr>
@@ -311,14 +311,17 @@ window.purchaseListing = (id, action) => {
     const orderId = '#AG-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
     if (action === 'rent') {
-        const daysInput = prompt(`How many days would you like to rent "${l.name}"? (₹${l.rentPrice}/day)`, "1");
-        rentDays = parseInt(daysInput);
-        if (isNaN(rentDays) || rentDays <= 0) { toast('⚠️ Invalid number of days.', true); return; }
-        price = l.rentPrice * rentDays;
-        
-        const end = new Date();
-        end.setDate(end.getDate() + rentDays);
-        rentEndDate = end.toISOString();
+        // Redirect to payment page — days input will happen there
+        sessionStorage.setItem('pendingRental', JSON.stringify({
+            listingId: l.id,
+            productName: l.name,
+            image: l.image,
+            perDay: l.rentPrice,
+            orderId,
+            farmerName
+        }));
+        window.location.href = 'payment.html';
+        return;
     } else if (action === 'buy') {
         const qtyInput = prompt(`Enter Total Quantity for "${l.name}":`, "1");
         quantity = parseFloat(qtyInput);
@@ -326,7 +329,7 @@ window.purchaseListing = (id, action) => {
         price = l.buyPrice * quantity;
     }
 
-    if (!confirm(`Confirm ${action === 'buy' ? 'Purchase' : 'Rental'} of "${l.name}" for ₹${price.toFixed(2)}${action === 'rent' ? ` (${rentDays} days)` : ` (Qty: ${quantity})`}?`)) return;
+    if (!confirm(`Confirm Purchase of "${l.name}" for ₹${price.toFixed(2)} (Qty: ${quantity})?`)) return;
 
     listings[idx].status  = action === 'buy' ? 'sold' : 'rented';
     listings[idx].revenue = (listings[idx].revenue || 0) + price;
