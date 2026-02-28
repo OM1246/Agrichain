@@ -353,9 +353,9 @@ function renderSellingList() {
                 <td style="padding: 12px; font-family: monospace; color:var(--violet);">${s.orderId}</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${dateStr}</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${dateStr}</td>
-                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${s.price.toFixed(2)}</td>
-                <td style="padding: 12px; color:#fff;">${qty}</td>
                 <td style="padding: 12px; color:#fff;">₹${perQty}</td>
+                <td style="padding: 12px; color:#fff;">${qty}</td>
+                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${s.price.toFixed(2)}</td>
             </tr>
         `;
     }).join('');
@@ -388,13 +388,13 @@ function renderSellingList() {
             <tr style="border-bottom: 1px solid var(--border);">
                 <td style="padding: 12px; color:#fff;">${r.farmerName}</td>
                 <td style="padding: 12px; color:#fff;">${r.name}</td>
-                <td style="padding: 12px; font-family: monospace; color:var(--violet);">${r.orderId}</td>
                 <td style="padding: 12px; color:#fff;">${r.rentDays} days</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${new Date(r.rentStart).toLocaleDateString()}</td>
                 <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${new Date(r.rentEnd).toLocaleDateString()}</td>
-                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${r.price}</td>
                 <td style="padding: 12px; color:#fff;">₹${perDay}</td>
+                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${r.price}</td>
                 <td style="padding: 12px; font-weight:600;">${statusText}</td>
+                <td style="padding: 12px; font-family: monospace; color:var(--violet);">${r.orderId}</td>
             </tr>
         `;
     }).join('');

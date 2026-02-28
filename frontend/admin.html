@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Auth Gatekeeper: Immediate redirection if not logged in
+        if (!localStorage.getItem('adminToken')) {
+            window.location.href = 'admin-auth.html';
+        }
+    </script>
 </head>
 <body>
 
@@ -19,71 +25,144 @@
             <a href="seller-auth.html">Seller</a>
             <a href="admin.html" class="active">Admin</a>
         </div>
-        <div style="display:flex; gap:10px;">
-            <a href="seller-auth.html" class="btn-primary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-2); color:#fff;">👤 Seller Login</a>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <div style="color:var(--gray); font-size:0.9rem; font-weight:600;">
+                <span style="color:var(--emerald-dim); margin-right:4px;">🛡️</span> <span>Admin</span>
+            </div>
+            <button onclick="handleAdminLogout()" class="btn-primary" style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.2); color:#ff3b30; padding: 8px 16px;">🚪 Logout</button>
             <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
         </div>
     </nav>
 
     <main class="container" style="padding-top:3rem;padding-bottom:5rem;">
 
-        <div class="animate-up" style="margin-bottom:3rem;">
+        <!-- Header -->
+        <div class="animate-up" style="margin-bottom:2.5rem;">
             <div class="badge" style="color:var(--sapphire);background:var(--sapphire-dim);border-color:rgba(61,158,255,0.25);">🛡️ Admin Portal</div>
-            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Logistics &amp; Verification</h1>
-            <p style="color:var(--gray);max-width:450px;margin-top:0.5rem;">Update supply chain stages and verify product provenance on-chain.</p>
+            <h1 class="section-title" style="font-size:2.5rem;margin-top:0.5rem;">Admin Dashboard</h1>
+            <p style="color:var(--gray);max-width:450px;margin-top:0.5rem;">Review and manage products listed by sellers on the marketplace.</p>
         </div>
 
-        <div class="portal-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="animate-up" style="margin-bottom:2rem; display: flex; align-items: flex-end; width: 100%;">
+            <!-- Tab Navigation (Left Aligned) -->
+            <div class="auth-tabs" style="margin-bottom: 0; padding: 4px; width: fit-content;">
+                <div class="auth-tab active" id="tabPending" onclick="switchAdminTab('pending')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px;">
+                    <span style="font-size: 1.2rem;">⏳</span>
+                    <span>Pending</span>
+                </div>
+                <div class="auth-tab" id="tabAccepted" onclick="switchAdminTab('accepted')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px;">
+                    <span style="font-size: 1.2rem;">✅</span>
+                    <span>Accepted</span>
+                </div>
+                <div class="auth-tab" id="tabDeclined" onclick="switchAdminTab('declined')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px;">
+                    <span style="font-size: 1.2rem;">❌</span>
+                    <span>Declined</span>
+                </div>
+                <div class="auth-tab" id="tabAnalytics" onclick="switchAdminTab('analytics')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px;">
+                    <span style="font-size: 1.2rem;">📊</span>
+                    <span>Analytics</span>
+                </div>
+            </div>
+        </div>
 
-            <!-- Stage Update -->
-            <div class="glass-card animate-up">
-                <h3 style="font-weight:700;margin-bottom:0.25rem;color:#fff;">🚚 Update Stage</h3>
-                <p style="color:var(--gray-dim);margin-bottom:2rem;font-size:0.88rem;">Change the supply chain status of a registered product.</p>
+        <!-- Pending Tab -->
+        <div id="panelPending" class="tab-content animate-up" style="animation-delay: 0.1s;">
+            <div class="glass-card" style="padding: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff;">Pending Listings</h3>
+                </div>
+                <div id="approvalsGrid" class="marketplace-grid"></div>
+                <div id="noApprovals" class="empty-state-v2 hidden">
+                    <div class="empty-state-icon">✅</div>
+                    <h3 style="font-size:1.5rem;color:#fff;margin-bottom:0.5rem;">All Caught Up!</h3>
+                    <p style="color:var(--gray);font-size:1rem;">There are no pending products waiting for approval right now.</p>
+                </div>
+            </div>
+        </div>
 
-                <form id="stageForm">
-                    <div class="input-group">
-                        <label>Product ID</label>
-                        <input type="number" id="stageId" placeholder="Enter Product ID" required>
-                    </div>
-                    <div class="input-group">
-                        <label>New Stage</label>
-                        <select id="newStageSelect" required>
-                            <option value="1">In Transit</option>
-                            <option value="2">Stored (Warehouse)</option>
-                            <option value="3">At Retail (Shop)</option>
-                            <option value="4">Sold</option>
+        <!-- Accepted Tab -->
+        <div id="panelAccepted" class="tab-content hidden animate-up">
+            <div class="glass-card" style="padding: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff;">Accepted Products</h3>
+                </div>
+                <div id="acceptedGrid" class="marketplace-grid"></div>
+                <div id="noAccepted" class="empty-state-v2 hidden">
+                    <div class="empty-state-icon">📦</div>
+                    <h3 style="font-size:1.5rem;color:#fff;margin-bottom:0.5rem;">No Accepted Products</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Declined Tab -->
+        <div id="panelDeclined" class="tab-content hidden animate-up">
+            <div class="glass-card" style="padding: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: 800; color: #fff;">Declined Products</h3>
+                </div>
+                <div id="declinedGrid" class="marketplace-grid"></div>
+                <div id="noDeclined" class="empty-state-v2 hidden">
+                    <div class="empty-state-icon">✨</div>
+                    <h3 style="font-size:1.5rem;color:#fff;margin-bottom:0.5rem;">No Declined Products</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="panelAnalytics" class="tab-content hidden animate-up">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="section-title" style="font-size:1.8rem;margin-bottom:0.5rem;">Platform Analytics</h2>
+                    <div style="width: 50px; height: 3px; background: var(--sapphire); border-radius: 99px;"></div>
+                </div>
+                <!-- Timeframe Selection & Download -->
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="position: relative;">
+                        <select id="analyticsTimeframe" onchange="loadAnalytics()" style="appearance: none; background: var(--surface); border: 1px solid var(--border); color: #fff; padding: 10px 35px 10px 15px; border-radius: var(--r-md); font-size: 0.9rem; font-weight: 600; cursor: pointer;">
+                            <option value="weekly">📅 Last 7 Days (Weekly)</option>
+                            <option value="monthly">📅 Last 30 Days (Monthly)</option>
+                            <option value="yearly">📅 Last 12 Months (Yearly)</option>
                         </select>
+                        <span style="position: absolute; right: 12px; top: 11px; pointer-events: none; font-size: 0.8rem; color: var(--gray);">▼</span>
                     </div>
-                    <div class="input-group">
-                        <label>Current Location</label>
-                        <input type="text" id="stageLoc" placeholder="e.g. Distribution Center, Mumbai" required>
-                    </div>
-                    <button type="submit" class="btn-primary" style="width:100%;">📡 Broadcast Update</button>
-                </form>
-            </div>
-
-            <!-- Verification -->
-            <div class="glass-card animate-up">
-                <h3 style="font-weight:700;margin-bottom:0.25rem;color:#fff;">🔍 Verify Product</h3>
-                <p style="color:var(--gray-dim);margin-bottom:2rem;font-size:0.88rem;">Look up the full blockchain history of any product.</p>
-
-                <div class="input-group">
-                    <label>Product ID</label>
-                    <input type="number" id="verifyIdInput" placeholder="Enter Product ID">
-                </div>
-                <button id="verifyBtn" class="btn-primary" style="width:100%;">🔎 Search History</button>
-
-                <div id="verifyResult" class="hidden" style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);">
-                    <div id="productInfo" style="margin-bottom:1.5rem;"></div>
-                    <h4 style="color:var(--gray-dim);font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem;">Blockchain History</h4>
-                    <div id="historyTimeline" style="padding-left:1.25rem;border-left:2px solid var(--sapphire);"></div>
+                
+                    <button class="btn-primary" onclick="downloadAnalyticsJSON()" style="background:var(--sapphire); color:#fff; display:flex; align-items:center; gap:8px;">
+                        ⬇️ Download CSV
+                    </button>
                 </div>
             </div>
 
+            <!-- Stats Grid -->
+            <div class="portal-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+                <div class="glass-card" style="text-align:center; padding: 1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--gray-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;font-weight:700;">Daily Rentals</div>
+                    <div id="statDailyRentals" style="font-size:2rem;font-weight:800;color:var(--sapphire);">0</div>
+                </div>
+                <div class="glass-card" style="text-align:center; padding: 1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--gray-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;font-weight:700;">Daily Sold</div>
+                    <div id="statDailySold" style="font-size:2rem;font-weight:800;color:var(--emerald);">0</div>
+                </div>
+                <div class="glass-card" style="text-align:center; padding: 1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--gray-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;font-weight:700;">Weekly Trans.</div>
+                    <div id="statWeeklyTx" style="font-size:2rem;font-weight:800;color:#fff;">0</div>
+                </div>
+                <div class="glass-card" style="text-align:center; padding: 1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--gray-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;font-weight:700;">Monthly Trans.</div>
+                    <div id="statMonthlyTx" style="font-size:2rem;font-weight:800;color:#fff;">0</div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1.5rem;">Transaction Volume (Last 7 Days)</h3>
+                <div style="width:100%; height:300px; position:relative;">
+                    <canvas id="adminAnalyticsChart"></canvas>
+                </div>
+            </div>
         </div>
     </main>
 
     <script src="js/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script type="module" src="js/global.js"></script>
     <script type="module" src="js/admin.js"></script>
 </body>

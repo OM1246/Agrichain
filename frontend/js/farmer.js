@@ -21,10 +21,33 @@ function toast(msg) {
 }
 
 // ── Marketplace ───────────────────────────────
+let currentMarketFilter = 'all';
+
+window.setMarketFilter = (filter) => {
+    currentMarketFilter = filter;
+    
+    // Update tabs UI
+    document.getElementById('filterAll').classList.remove('active');
+    document.getElementById('filterBuy').classList.remove('active');
+    document.getElementById('filterRent').classList.remove('active');
+    
+    if (filter === 'all') document.getElementById('filterAll').classList.add('active');
+    else if (filter === 'buy') document.getElementById('filterBuy').classList.add('active');
+    else if (filter === 'rent') document.getElementById('filterRent').classList.add('active');
+    
+    filterMarketplace();
+};
+
+window.filterMarketplace = () => {
+    loadMarketplace();
+};
+
 function loadMarketplace() {
     const marketGrid   = document.getElementById('marketGrid');
     const marketLoader = document.getElementById('marketLoader');
     const noProducts   = document.getElementById('noProducts');
+    const searchInput  = document.getElementById('marketSearchInput');
+    const sortSelect   = document.getElementById('marketSortSelect');
 
     if (!marketGrid) return;
 
@@ -33,7 +56,38 @@ function loadMarketplace() {
     if (noProducts) noProducts.classList.add('hidden');
     marketGrid.classList.remove('hidden');
 
-    const listings = getListings().filter(l => l.status === 'listed' && !l.deleted);
+    let listings = getListings().filter(l => l.status === 'listed' && !l.deleted && l.adminStatus === 'accepted');
+
+    // Apply Filter
+    if (currentMarketFilter === 'buy') {
+        listings = listings.filter(l => l.listingType === 'buy' || l.listingType === 'both');
+    } else if (currentMarketFilter === 'rent') {
+        listings = listings.filter(l => l.listingType === 'rent' || l.listingType === 'both');
+    }
+
+    // Apply Search
+    if (searchInput && searchInput.value) {
+        const query = searchInput.value.toLowerCase();
+        listings = listings.filter(l => l.name.toLowerCase().includes(query) || (l.desc && l.desc.toLowerCase().includes(query)));
+    }
+
+    // Apply Sorting
+    if (sortSelect) {
+        const sortVal = sortSelect.value;
+        if (sortVal === 'low-high') {
+            listings.sort((a, b) => {
+                const priceA = (a.listingType === 'rent' && currentMarketFilter === 'rent') ? a.rentPrice : a.buyPrice || a.rentPrice;
+                const priceB = (b.listingType === 'rent' && currentMarketFilter === 'rent') ? b.rentPrice : b.buyPrice || b.rentPrice;
+                return priceA - priceB;
+            });
+        } else if (sortVal === 'high-low') {
+            listings.sort((a, b) => {
+                const priceA = (a.listingType === 'rent' && currentMarketFilter === 'rent') ? a.rentPrice : a.buyPrice || a.rentPrice;
+                const priceB = (b.listingType === 'rent' && currentMarketFilter === 'rent') ? b.rentPrice : b.buyPrice || b.rentPrice;
+                return priceB - priceA;
+            });
+        }
+    }
 
     if (listings.length === 0) {
         marketGrid.classList.add('hidden');
@@ -114,13 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Tab Switching ─────────────────────────────
 window.switchTab = (tab) => {
-    const tabs = ['market', 'analytics', 'track', 'rental'];
+    const tabs = ['market', 'analytics', 'track', 'rental', 'buying'];
     tabs.forEach(t => {
         const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
         let panelId = 'panelAnalytics';
         if (t === 'market') panelId = 'panelProducts';
         else if (t === 'track') panelId = 'panelTrack';
         else if (t === 'rental') panelId = 'panelRental';
+        else if (t === 'buying') panelId = 'panelBuying';
         
         const panel = document.getElementById(panelId);
         
@@ -135,6 +190,7 @@ window.switchTab = (tab) => {
     
     if (tab === 'analytics') renderAnalytics();
     if (tab === 'rental') renderRentalOrders();
+    if (tab === 'buying') renderBuyingOrders();
 };
 
 // ── Tracking ─────────────────────────────────
@@ -177,6 +233,43 @@ window.trackOrder = () => {
 
 // ── Analytics ─────────────────────────────────
 let marketChart, spendingChart;
+
+function renderBuyingOrders() {
+    const purchases = getPurchases();
+    const body = document.getElementById('buyingOrdersBody');
+    const noData = document.getElementById('noBuyingData');
+    if (!body) return;
+
+    // Filter only buys
+    const buys = purchases.filter(p => p.action === 'buy');
+
+    if (buys.length === 0) {
+        body.innerHTML = '';
+        if (noData) noData.classList.remove('hidden');
+        return;
+    }
+
+    if (noData) noData.classList.add('hidden');
+    
+    body.innerHTML = buys.slice().reverse().map(b => {
+        const qty = b.quantity || 1;
+        const amtPerProd = (b.price / qty).toFixed(2);
+        const dateStr = b.at ? new Date(b.at).toLocaleDateString() : 'N/A';
+        const receivedStr = b.at ? new Date(b.at).toLocaleDateString() : 'N/A'; // Mocking received date as same right now
+
+        return `
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px; color:#fff;">${b.name}</td>
+                <td style="padding: 12px; color:#fff;">${qty}</td>
+                <td style="padding: 12px; color:#fff;">₹${amtPerProd}</td>
+                <td style="padding: 12px; color:var(--emerald); font-weight:700;">₹${b.price.toFixed(2)}</td>
+                <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${dateStr}</td>
+                <td style="padding: 12px; color:var(--gray-dim); font-size: 0.85rem;">${receivedStr}</td>
+                <td style="padding: 12px; font-family: monospace; color:var(--violet);">${b.orderId}</td>
+            </tr>
+        `;
+    }).join('');
+}
 
 function renderRentalOrders() {
     const purchases = getPurchases();

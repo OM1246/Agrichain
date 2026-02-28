@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — AgriChain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Auto-redirect if already logged in as admin
+        if (localStorage.getItem('adminToken')) {
+            window.location.href = 'admin.html';
+        }
+    </script>
+</head>
+<body>
+
+    <nav class="glass-nav">
+        <div class="logo">Agri<span>Chain</span></div>
+        <div class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="farmer-auth.html">Farmer</a>
+            <a href="seller-auth.html">Seller</a>
+            <a href="admin-auth.html" class="active">Admin</a>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a href="admin-auth.html" class="btn-primary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-2); color:#fff;">🛡️ Admin Login</a>
+            <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="auth-container">
+        <div class="auth-card animate-up">
+            <div class="auth-tabs" style="grid-template-columns: 1fr;">
+                <div class="auth-tab active" style="cursor: default;">Admin Login</div>
+            </div>
+
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome to<br>Admin Portal</h2>
+                <p>Login to manage agricultural listings</p>
+                <div class="input-group full">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="admin@agrichain.com">
+                </div>
+                <div class="input-group full">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+                <!-- Optional dummy credentials hint for ease of testing -->
+                <p style="color:var(--gray-dim); font-size: 0.8rem; text-align: center; margin-top: -10px;">
+                    (Use anything to login for this demo, e.g. admin / admin)
+                </p>
+                <button onclick="handleAuth('login')" class="btn-primary btn-auth">🔓 Secure Login</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function handleAuth(type) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Verifying...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+
+            // Simulate network request for auth logic since we don't have a real admin endpoint
+            setTimeout(() => {
+                let isValid = true;
+                
+                if (type === 'login') {
+                    if (!document.getElementById('loginEmail').value || 
+                        !document.getElementById('loginPassword').value) {
+                        alert('Please fill out all fields.');
+                        isValid = false;
+                    }
+                }
+
+                if (isValid) {
+                    // Set mock admin token on successful UI validation
+                    localStorage.setItem('adminToken', 'mock_admin_token_' + Date.now());
+                    window.location.href = 'admin.html';
+                } else {
+                    btn.innerText = originalText;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'all';
+                }
+            }, 800);
+        }
+    </script>
+</body>
+</html>
