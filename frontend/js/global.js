@@ -295,7 +295,7 @@ window.sendChatMessage = async function() {
     addChatMessage("...", "bot-msg", loadingId);
 
     try {
-        const API_KEY = "AIzaSyDWLK7nQdljT0yj5XyGY7jioDTJtrGlFjE";
+        const API_KEY = "Use_your_key";
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY, {
             method: "POST",
             headers: {
