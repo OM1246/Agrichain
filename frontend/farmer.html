@@ -29,10 +29,22 @@
             <a href="admin.html">Admin</a>
         </div>
         <div style="display:flex; gap:10px; align-items: center;">
-            <div id="farmerIdentity" style="color:var(--gray); font-size:0.9rem; font-weight:600; display:none;">
-                <span style="color:var(--emerald); margin-right:4px;">👨‍🌾</span> <span id="farmerNameDisplay">Farmer</span>
+            <div id="farmerIdentity" style="position:relative; display:none; align-items:center; cursor:pointer;" onclick="toggleDropdown('farmerDropdown')">
+                <div style="background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:0.2s;" onmouseover="this.style.background='rgba(0,229,160,0.2)'" onmouseout="this.style.background='rgba(0,229,160,0.1)'">
+                    👨‍🌾
+                </div>
+                
+                <!-- Dropdown Menu -->
+                <div id="farmerDropdown" class="glass-card" style="display:none; position:absolute; top:50px; right:0; width:220px; padding:1.2rem; z-index:100; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                    <div style="text-align:center; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:1rem;">
+                        <span style="font-size:2rem;">👨‍🌾</span>
+                        <h4 id="farmerNameDisplay" style="color:#fff; font-weight:700; margin-top:0.5rem; margin-bottom:0.2rem;">Farmer</h4>
+                        <p id="farmerEmailDisplay" style="color:var(--gray-dim); font-size:0.8rem; margin:0; word-break:break-all;">Loading...</p>
+                    </div>
+                    <button id="logoutBtn" style="width:100%; padding:8px; font-size:0.85rem; border-radius:8px; margin-top:8px; background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.2); color:#ff3b30; cursor:pointer;" onmouseover="this.style.background='rgba(255,59,48,0.2)'" onmouseout="this.style.background='rgba(255,59,48,0.1)'">🚪 Logout</button>
+                </div>
             </div>
-            <button id="logoutBtn" class="btn-primary" style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.2); color:#ff3b30; padding: 8px 16px;">🚪 Logout</button>
+            
             <button id="connectWalletBtn" class="btn-primary">🔗 Connect Wallet</button>
         </div>
     </nav>
@@ -100,11 +112,8 @@
                 </div>
             </div>
 
-            <!-- Loader -->
-            <div id="marketLoader" style="text-align:center;padding:5rem;">
-                <div style="display:inline-block;width:48px;height:48px;border:4px solid var(--border-2);border-top-color:var(--emerald);border-radius:50%;animation:spin 1s linear infinite;"></div>
-                <p style="margin-top:1.5rem;color:var(--gray);font-weight:600;letter-spacing:0.05em;">SYNCHRONIZING MARKETPLACE...</p>
-            </div>
+            <!-- Loader removed per request -->
+            <div id="marketLoader" style="display:none;"></div>
 
             <div id="marketGrid" class="marketplace-grid hidden"></div>
 

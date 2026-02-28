@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isNaN(rentPrice) || rentPrice < 0) { toast('⚠️ Enter rent price.', true); return; }
         }
 
-        if (submitBtn) { submitBtn.textContent = '⏳ Saving…'; submitBtn.disabled = true; }
+        if (submitBtn) { submitBtn.textContent = '✅ Confirmed!'; submitBtn.disabled = true; }
 
         const reader = new FileReader();
         reader.onload = (ev) => {
@@ -123,7 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleListingType('');
                 document.getElementById('imagePreview').style.display = 'none';
 
-                if (submitBtn) { submitBtn.textContent = '📝 Confirm Listing'; submitBtn.disabled = false; }
+                if (submitBtn) { 
+                    submitBtn.textContent = '✅ Confirmed!'; 
+                    setTimeout(() => {
+                        submitBtn.textContent = '📝 Confirm Listing'; 
+                        submitBtn.disabled = false; 
+                    }, 2000);
+                }
                 toast(`✅ "${name}" listed!`);
             };
             img.src = ev.target.result;
@@ -405,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sellerData = JSON.parse(localStorage.getItem('sellerData') || 'null');
     if (sellerData) {
         setText('sellerBusinessName', sellerData.businessName);
+        setText('sellerEmailDisplay', sellerData.email);
         const identityEl = document.getElementById('sellerIdentity');
         if (identityEl) identityEl.style.display = 'flex';
     }
@@ -413,3 +420,4 @@ document.addEventListener('DOMContentLoaded', () => {
     renderManagementList();
     setTimeout(renderCharts, 200);
 });
+

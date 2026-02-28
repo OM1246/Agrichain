@@ -51,18 +51,19 @@ function loadMarketplace() {
 
     if (!marketGrid) return;
 
-    if (marketLoader) marketLoader.style.display = 'none';
-    marketGrid.innerHTML = '';
     if (noProducts) noProducts.classList.add('hidden');
     marketGrid.classList.remove('hidden');
 
+    // Only show items that are listed, not deleted, and explicitly ACCEPTED by Admin
     let listings = getListings().filter(l => l.status === 'listed' && !l.deleted && l.adminStatus === 'accepted');
 
-    // Apply Filter
-    if (currentMarketFilter === 'buy') {
-        listings = listings.filter(l => l.listingType === 'buy' || l.listingType === 'both');
+    // Apply Filter (Strict matching as per request)
+    if (currentMarketFilter === 'all') {
+        listings = listings.filter(l => l.listingType === 'both');
+    } else if (currentMarketFilter === 'buy') {
+        listings = listings.filter(l => l.listingType === 'buy');
     } else if (currentMarketFilter === 'rent') {
-        listings = listings.filter(l => l.listingType === 'rent' || l.listingType === 'both');
+        listings = listings.filter(l => l.listingType === 'rent');
     }
 
     // Apply Search
@@ -109,7 +110,7 @@ function loadMarketplace() {
 
         let actionBtns = '';
         if (l.listingType === 'buy' || l.listingType === 'both') {
-            actionBtns += `<button class="btn-primary" style="flex:1;padding:8px;font-size:0.8rem;" onclick="purchaseListing('${l.id}','buy')">Purchase</button>`;
+            actionBtns += `<button class="btn-primary" style="flex:1;padding:8px;font-size:0.8rem;" onclick="purchaseListing('${l.id}','buy')">Buy</button>`;
         }
         if (l.listingType === 'rent' || l.listingType === 'both') {
             actionBtns += `<button class="btn-outline" style="flex:1;padding:8px;font-size:0.8rem;" onclick="purchaseListing('${l.id}','rent')">Rent Now</button>`;
@@ -147,8 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const farmerData = JSON.parse(localStorage.getItem('farmerData') || 'null');
     if (farmerData) {
         const nameEl = document.getElementById('farmerNameDisplay');
+        const emailEl = document.getElementById('farmerEmailDisplay');
         const identityEl = document.getElementById('farmerIdentity');
         if (nameEl) nameEl.textContent = farmerData.farmerName;
+        if (emailEl) emailEl.textContent = farmerData.email;
         if (identityEl) identityEl.style.display = 'flex';
     }
 
@@ -387,7 +390,6 @@ window.addEventListener('agrichain:newListing', loadMarketplace);
 window.addEventListener('app:ready', loadMarketplace);
 
 // ── Purchase handlers ─────────────────────────
-// ── Purchase handlers ─────────────────────────
 window.purchaseListing = (id, action) => {
     const listings = getListings();
     const idx = listings.findIndex(l => String(l.id) === String(id));
@@ -397,57 +399,19 @@ window.purchaseListing = (id, action) => {
     const farmerData = JSON.parse(localStorage.getItem('farmerData') || '{}');
     const farmerName = farmerData.farmerName || 'Anonymous Farmer';
     
-    let price = action === 'buy' ? l.buyPrice : l.rentPrice;
-    let rentDays = 0;
-    let quantity = 1;
-    let rentEndDate = null;
     const orderId = '#AG-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-    if (action === 'rent') {
-        // Redirect to payment page — days input will happen there
-        sessionStorage.setItem('pendingRental', JSON.stringify({
-            listingId: l.id,
-            productName: l.name,
-            image: l.image,
-            perDay: l.rentPrice,
-            orderId,
-            farmerName
-        }));
-        window.location.href = 'payment.html';
-        return;
-    } else if (action === 'buy') {
-        const qtyInput = prompt(`Enter Total Quantity for "${l.name}":`, "1");
-        quantity = parseFloat(qtyInput);
-        if (isNaN(quantity) || quantity <= 0) { toast('⚠️ Invalid quantity.', true); return; }
-        price = l.buyPrice * quantity;
-    }
-
-    if (!confirm(`Confirm Purchase of "${l.name}" for ₹${price.toFixed(2)} (Qty: ${quantity})?`)) return;
-
-    listings[idx].status  = action === 'buy' ? 'sold' : 'rented';
-    listings[idx].revenue = (listings[idx].revenue || 0) + price;
-    try { localStorage.setItem(SELLER_KEY, JSON.stringify(listings)); } catch {}
-
-    const purchases = getPurchases();
-    purchases.push({ 
+    // Redirect to payment page — context sent via sessionStorage
+    sessionStorage.setItem('pendingRental', JSON.stringify({
+        listingId: l.id,
+        productName: l.name,
+        image: l.image,
+        perDay: action === 'buy' ? l.buyPrice : l.rentPrice,
+        action: action,
         orderId,
-        farmerName,
-        name: l.name, 
-        image: l.image, 
-        action, 
-        price, 
-        rentDays,
-        quantity,
-        rentStart: new Date().toISOString(),
-        rentEnd: rentEndDate,
-        at: new Date().toISOString() 
-    });
-    savePurchases(purchases);
-
-    toast(`✅ "${l.name}" ${action === 'buy' ? 'purchased' : 'rented'} for ₹${price}! Order ID: ${orderId}`);
-    loadMarketplace();
-    renderAnalytics();
-    renderRentalOrders();
+        farmerName
+    }));
+    window.location.href = 'payment.html';
 };
 
 window.buyProduct = async (id, price) => {

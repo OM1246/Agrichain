@@ -278,6 +278,31 @@ window.toggleVoiceRecording = function() {
     window.recognition.start();
 };
 
+// Profile Dropdown Functionality
+window.toggleDropdown = function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    // Auto-close logic on outside click
+    if (el.style.display === 'none' || el.style.display === '') {
+        el.style.display = 'block';
+        
+        // Setup listener to close it
+        const closeDropdown = (e) => {
+            // Check if the click is outside the dropdown and its trigger
+            const dropdownTrigger = document.getElementById(id.replace('Dropdown', 'Identity'));
+            if (!el.contains(e.target) && (!dropdownTrigger || !dropdownTrigger.contains(e.target))) {
+                el.style.display = 'none';
+                document.removeEventListener('click', closeDropdown);
+            }
+        };
+        // Use setTimeout to allow the current click event to propagate before adding the listener
+        setTimeout(() => document.addEventListener('click', closeDropdown), 0);
+    } else {
+        el.style.display = 'none';
+    }
+};
+
 window.toggleChatbot = function() {
     const container = document.getElementById("chatbot-container");
     if(container) container.classList.toggle("active");

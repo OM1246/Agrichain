@@ -46,15 +46,15 @@
                     <span style="color:var(--gray);">Product</span>
                     <span id="payProductName" style="color:#fff;font-weight:700;">—</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
+                <div id="durationRow" style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
                     <span style="color:var(--gray);">Rental Duration</span>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <input type="number" id="payDaysInput" min="1" value="1" style="width:70px; padding:8px 10px; text-align:center; font-size:1rem; font-weight:700; background:var(--bg-2); border:1px solid var(--border-2); border-radius:8px; color:#fff;" oninput="updateTotal()">
-                        <span style="color:var(--gray-dim); font-size:0.85rem;">days</span>
+                        <span style="color:var(--gray-dim); font-size:0.85rem;" id="durationUnit">days</span>
                     </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
-                    <span style="color:var(--gray);">Per Day Rate</span>
+                    <span id="rateLabel" style="color:var(--gray);">Per Day Rate</span>
                     <span id="payPerDay" style="color:#fff;font-weight:700;">—</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; padding:12px; background:rgba(0,229,160,0.06); border:1px solid rgba(0,229,160,0.15); border-radius:8px;">
@@ -162,6 +162,17 @@
             document.getElementById('payProductName').textContent = orderData.productName;
             document.getElementById('payPerDay').textContent = '₹' + orderData.perDay;
             document.getElementById('payOrderId').textContent = 'Order: ' + orderData.orderId;
+            
+            // Adjust UI based on action
+            if (orderData.action === 'buy') {
+                document.getElementById('durationRow').querySelector('span').textContent = 'Quantity';
+                document.getElementById('durationUnit').textContent = 'items';
+                document.getElementById('rateLabel').textContent = 'Price per item';
+                document.querySelector('.section-title').textContent = 'Complete Your Purchase';
+            } else {
+                document.getElementById('rateLabel').textContent = 'Per Day Rate';
+            }
+            
             updateTotal();
         }
 
@@ -211,13 +222,18 @@
         async function proceedPayment() {
             if (!selectedMethod || !orderData) return;
 
+            let finalTxHash = 'N/A';
             const rentDays = parseInt(document.getElementById('payDaysInput').value);
-            if (isNaN(rentDays) || rentDays <= 0) { toast('⚠️ Please enter a valid number of days.'); return; }
+            if (isNaN(rentDays) || rentDays <= 0) { toast('⚠️ Please enter a valid number.'); return; }
 
             const totalPrice = rentDays * orderData.perDay;
-            const end = new Date();
-            end.setDate(end.getDate() + rentDays);
-            const rentEnd = end.toISOString();
+            
+            let rentEnd = null;
+            if (orderData.action !== 'buy') {
+                const end = new Date();
+                end.setDate(end.getDate() + rentDays);
+                rentEnd = end.toISOString();
+            }
 
             const btn = document.getElementById('proceedBtn');
             btn.disabled = true;
@@ -252,7 +268,7 @@
                     
                     btn.textContent = '🦊 Confirm in MetaMask...';
                     
-                    const txHash = await window.ethereum.request({
+                    finalTxHash = await window.ethereum.request({
                         method: 'eth_sendTransaction',
                         params: [{
                             from: from,
@@ -261,7 +277,7 @@
                         }]
                     });
                     
-                    toast('🔗 Transaction Sent! Hash: ' + txHash.substring(0, 8) + '...');
+                    toast('🔗 Transaction Sent! Hash: ' + finalTxHash.substring(0, 8) + '...');
                     btn.textContent = '⏳ Awaiting Confirmation...';
                     
                     // In a real app we would wait for the receipt. Here we proceed.
@@ -283,7 +299,7 @@
                 const idx = listings.findIndex(l => String(l.id) === String(orderData.listingId));
 
                 if (idx !== -1) {
-                    listings[idx].status = 'rented';
+                    listings[idx].status = orderData.action === 'buy' ? 'sold' : 'rented';
                     listings[idx].revenue = (listings[idx].revenue || 0) + totalPrice;
                     localStorage.setItem(SELLER_KEY, JSON.stringify(listings));
                 }
@@ -294,10 +310,10 @@
                     farmerName: orderData.farmerName,
                     name: orderData.productName,
                     image: orderData.image,
-                    action: 'rent',
+                    action: orderData.action || 'rent',
                     price: totalPrice,
-                    rentDays: rentDays,
-                    quantity: 1,
+                    rentDays: orderData.action === 'buy' ? 0 : rentDays,
+                    quantity: orderData.action === 'buy' ? rentDays : 1, // here rentDays input is used as qty if visible
                     rentStart: new Date().toISOString(),
                     rentEnd: rentEnd,
                     at: new Date().toISOString(),
@@ -305,18 +321,34 @@
                 });
                 localStorage.setItem(PURCHASE_KEY, JSON.stringify(purchases));
 
-                // Clean up
+                // Clean up & Set TX Data
                 sessionStorage.removeItem('pendingRental');
+                sessionStorage.setItem('txSuccessData', JSON.stringify({
+                    orderId: orderData.orderId,
+                    productName: orderData.productName,
+                    action: orderData.action || 'rent',
+                    price: totalPrice,
+                    rentDays: orderData.action === 'buy' ? 0 : rentDays,
+                    quantity: orderData.action === 'buy' ? rentDays : 1,
+                    method: selectedMethod,
+                    txHash: finalTxHash,
+                    date: new Date().toLocaleDateString()
+                }));
 
                 // Show success
                 btn.textContent = '✅ Payment Successful!';
                 btn.style.background = 'var(--emerald)';
                 btn.style.opacity = '1';
-                toast('✅ Rental confirmed! Redirecting...');
+                
+                if (orderData.action === 'buy') {
+                    toast('✅ Purchase confirmed! Redirecting to receipt...');
+                } else {
+                    toast('✅ Rental confirmed! Redirecting to receipt...');
+                }
 
                 setTimeout(() => {
-                    window.location.href = 'farmer.html';
-                }, 2000);
+                    window.location.href = 'success.html';
+                }, 1500);
             }, 1000);
         }
     </script>
